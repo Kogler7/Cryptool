@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CryptoolClass</class>
+ <widget class="QMainWindow" name="CryptoolClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>432</width>
+    <height>430</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Cryptool</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QPushButton" name="encryptBtn">
+    <property name="geometry">
+     <rect>
+      <x>29</x>
+      <y>360</y>
+      <width>161</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>加密</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="decryptBtn">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>360</y>
+      <width>171</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>解密</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="statusLabel">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>400</y>
+      <width>381</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>加密完成。</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="authorLabel">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>400</y>
+      <width>121</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string> 魏振杰20241068</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="chooseBox">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>10</y>
+      <width>371</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>文件选择</string>
+    </property>
+    <widget class="QPushButton" name="kButton">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>110</y>
+       <width>111</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>选择密钥文件</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="plainLine">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>181</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>select a file</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pButton">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>30</y>
+       <width>111</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>选择明文文件</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="keyLaybel">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>150</y>
+       <width>101</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>或直接输入密钥：</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="keyInput">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>150</y>
+       <width>181</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="keyLine">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>110</y>
+       <width>181</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>select a file</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="cipherLine">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>70</y>
+       <width>181</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>select a file</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="cButton">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>70</y>
+       <width>111</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>选择密文文件</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="paddingBox">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>290</y>
+      <width>371</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>填充方式</string>
+    </property>
+    <widget class="QRadioButton" name="paddingBtn1">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>20</y>
+       <width>71</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>PKCS#7</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="paddingBtn2">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>20</y>
+       <width>111</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>ISO-9797-M2</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="paddingBtn3">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>20</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>ANSI-X9.23</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>210</y>
+      <width>371</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tabDES">
+     <attribute name="title">
+      <string>DES</string>
+     </attribute>
+     <widget class="QRadioButton" name="desBtn1">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>10</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>DES-ECB</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="desBtn2">
+      <property name="geometry">
+       <rect>
+        <x>140</x>
+        <y>10</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>DES-CBC</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="desBtn3">
+      <property name="geometry">
+       <rect>
+        <x>250</x>
+        <y>10</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>DES-OFB</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tabAES">
+     <attribute name="title">
+      <string>AES</string>
+     </attribute>
+     <widget class="QRadioButton" name="aesBtn3">
+      <property name="geometry">
+       <rect>
+        <x>250</x>
+        <y>10</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>AES-256</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="aesBtn2">
+      <property name="geometry">
+       <rect>
+        <x>140</x>
+        <y>10</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>AES-192</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="aesBtn1">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>10</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>AES-128</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <zorder>chooseBox</zorder>
+   <zorder>encryptBtn</zorder>
+   <zorder>decryptBtn</zorder>
+   <zorder>statusLabel</zorder>
+   <zorder>authorLabel</zorder>
+   <zorder>paddingBox</zorder>
+   <zorder>tabWidget</zorder>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="Cryptool.qrc"/>
+ </resources>
+ <connections/>
+</ui>
