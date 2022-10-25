@@ -11,7 +11,7 @@ Cryptool::Cryptool(QWidget* parent)
 {
 	ui.setupUi(this);
 	ui.statusLabel->setText(QString("就绪。"));
-	ui.keyInput->setText(QString("ABCDEFGH"));
+	ui.keyInput->setText(QString("ABCDEFGHIJKLMNOP"));
 	ui.plainLine->setReadOnly(true);
 	ui.cipherLine->setReadOnly(true);
 	ui.keyLine->setReadOnly(true);
@@ -66,7 +66,7 @@ Cryptool::Cryptool(QWidget* parent)
 			yield("ANSI-X9.23");
 		}
 		});
-	ui.modeBtn1->setChecked(true);
+	ui.modeBtn4->setChecked(true);
 	ui.paddingBtn1->setChecked(true);
 }
 
@@ -152,11 +152,16 @@ void Cryptool::startDecrypt() {
 		);
 	}
 	else {
-		success = decryptAes(
-			get_cstr(cipherFile.absoluteFilePath()),
-			get_cstr(output),
-			aesKey
-		);
+		try {
+			success = decryptAes(
+				get_cstr(cipherFile.absoluteFilePath()),
+				get_cstr(output),
+				aesKey
+			);
+		}
+		catch (...) {
+
+		}
 	}
 	if (success) yield("解密成功！");
 }
@@ -389,7 +394,6 @@ bool Cryptool::encryptAes(const char* pt_path, const char* ct_path, unsigned cha
 		}
 		if (cnt < 16) {
 			pad(plain, cnt, 16, padding);
-			yield(QString::number(cnt));
 		}
 		unsigned char pArr[4][4];
 		for (int i = 0; i < 4; i++) {
@@ -453,33 +457,4 @@ bool Cryptool::decryptAes(const char* ct_path, const char* pt_path, unsigned cha
 	fclose(pf);
 	fclose(cf);
 	return true;
-}
-
-void testAES() {
-	unsigned char key[16] = { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f };
-	unsigned char usrKeyArr[4][4];
-	unsigned char exKeyArr[4][44];
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			usrKeyArr[j][i] = key[i * 4 + j];
-		}
-	}
-	keyExpansion(usrKeyArr, exKeyArr);
-	unsigned char plainText[16] = "hahahhahahahaha";
-	unsigned char cipherText[16];
-	unsigned char pArr[4][4];
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			pArr[j][i] = plainText[i * 4 + j];
-		}
-	}
-	aes_ecb_encrypt(pArr, exKeyArr);
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			cipherText[i * 4 + j] = pArr[j][i];
-		}
-	}
-	for (int i = 0; i < 16; i++) {
-		printf("%c ", cipherText[i]);
-	}
 }

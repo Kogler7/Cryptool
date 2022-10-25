@@ -9,7 +9,7 @@ void padPKCS7(unsigned char* pt, int pt_len, int block_size) {
 
 int dePadPKCS7(unsigned char* ct, int block_size) {
 	int pad_len = ct[block_size - 1];
-	for (int i = 0; i < pad_len; i++) {
+	for (int i = 0; i < pad_len && i < block_size - 1; i++) {
 		ct[block_size - 1 - i] = 0;
 	}
 	return block_size - pad_len;
@@ -25,7 +25,7 @@ void padISO9797M2(unsigned char* pt, int pt_len, int block_size) {
 
 int dePadISO9797M2(unsigned char* ct, int block_size) {
 	int pad_len = 0;
-	for (int i = 0; i < block_size; i++) {
+	for (int i = 0; i < block_size - 1; i++) {
 		if (ct[block_size - 1 - i] == 0x80) {
 			pad_len = i + 1;
 			break;
@@ -47,7 +47,7 @@ void padANSIX923(unsigned char* pt, int pt_len, int block_size) {
 
 int dePadANSIX923(unsigned char* ct, int block_size) {
 	int pad_len = ct[block_size - 1];
-	for (int i = 0; i < pad_len; i++) {
+	for (int i = 0; i < pad_len && i < block_size - 1; i++) {
 		ct[block_size - 1 - i] = 0;
 	}
 	return block_size - pad_len;

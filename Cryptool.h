@@ -21,8 +21,6 @@ enum Padding {
 	ANSIX923
 };
 
-void testAES();
-
 class Cryptool : public QMainWindow
 {
     Q_OBJECT;

@@ -1,4 +1,5 @@
 #include<string.h>
+#include<stdexcept>
 #include "aes.h"
 
 const unsigned char sTab[16][16] =
@@ -291,89 +292,6 @@ int keyExpansion(const unsigned char(*usrKeyArr)[4], unsigned char(*exKeyArr)[44
 	return ret;
 }
 
-//输入两个正整数r0>r1，输出计算结果
-int gcd(int r0, int r1)
-{
-	int r = 0;
-	while (r1 != 0)
-	{
-		r = r0 % r1;
-		r0 = r1;
-		r1 = r;
-	}
-	return r0;
-}
-
-int EEA(int r0, int r1)
-{
-	int mod = r0;
-	int r = 0;
-	int t0 = 0;
-	int t1 = 1;
-	int t = t1;
-	int q = 0;
-
-	//0不存在乘法逆元
-	if (r1 == 0)
-	{
-		return 0;
-	}
-
-	while (r1 != 1)
-	{
-		q = r0 / r1;
-
-		r = r0 - q * r1;
-
-		t = t0 - q * t1;
-
-		r0 = r1;
-		r1 = r;
-		t0 = t1;
-		t1 = t;
-	}
-
-	//结果为负数
-	if (t < 0)
-	{
-		t = t + mod;
-	}
-
-	return t;
-}
-
-//获取最高位
-int GetHighestPosition(unsigned short Number)
-{
-	int i = 0;
-	while (Number)
-	{
-		i++;
-		Number = Number >> 1;
-	}
-	return i;
-}
-
-//GF(2^8)的多项式除法
-unsigned char Division(unsigned short Num_L, unsigned short Num_R, unsigned short* Remainder)
-{
-	unsigned short r0 = 0;
-	unsigned char q = 0;
-	int bitCount = 0;
-
-	r0 = Num_L;
-
-	bitCount = GetHighestPosition(r0) - GetHighestPosition(Num_R);
-	while (bitCount >= 0)
-	{
-		q = q | (1 << bitCount);
-		r0 = r0 ^ (Num_R << bitCount);
-		bitCount = GetHighestPosition(r0) - GetHighestPosition(Num_R);
-	}
-	*Remainder = r0;
-	return q;
-}
-
 void aes_ecb_encrypt(unsigned char(*pArr)[4], unsigned char(*exKeyArr)[44]) {
 	addRoundKey(pArr, exKeyArr, 0);
 	for (int i = 1; i <= 10; i++) {
@@ -388,7 +306,19 @@ void aes_ecb_encrypt(unsigned char(*pArr)[4], unsigned char(*exKeyArr)[44]) {
 
 void aes_ecb_decrypt(unsigned char(*cArr)[4], unsigned char(*exKeyArr)[44]) {
 	for (int i = 1; i <= 10; i++) {
+		/*unsigned char temp[4][4];
+		for (int j = 0; j < 4; j++) {
+			for (int k = 0; k < 4; k++) {
+				temp[k][j] = exKeyArr[j][k + i * 4];
+			}
+		}*/
 		invMixColumn((unsigned char(*)[4])(exKeyArr + i * 4));
+		/*invMixColumn(temp);
+		for (int j = 0; j < 4; j++) {
+			for (int k = 0; k < 4; k++) {
+				exKeyArr[j][k + i * 4] = temp[k][j];
+			}
+		}*/
 	}
 	addRoundKey(cArr, exKeyArr, 10);
 	for (int i = 9; i > 0; i--) {
@@ -400,56 +330,4 @@ void aes_ecb_decrypt(unsigned char(*cArr)[4], unsigned char(*exKeyArr)[44]) {
 	invShiftRows((unsigned int*)cArr);
 	invByteSub((unsigned char*)cArr);
 	addRoundKey(cArr, exKeyArr, 0);
-}
-
-//GF(2^8)多项式乘法
-short Multiplication(unsigned char Num_L, unsigned char Num_R)
-{
-	//定义变量
-	unsigned short Result = 0; //伽罗瓦域内乘法计算的结果
-
-	for (int i = 0; i < 8; i++)
-	{
-		Result ^= ((Num_L >> i) & 0x01) * (Num_R << i);
-	}
-
-	return Result;
-}
-
-
-int EEA_V2(int r0, int r1)
-{
-	int mod = r0;
-	int r = 0;
-	int t0 = 0;
-	int t1 = 1;
-	int t = t1;
-	int q = 0;
-
-	if (r1 == 0)
-	{
-		return 0;
-	}
-
-	while (r1 != 1)
-	{
-		//q = r0 / r1;
-		//q = Division(r0, r1, &r);
-
-		r = r0 ^ Multiplication(q, r1);
-
-		t = t0 ^ Multiplication(q, t1);
-
-		r0 = r1;
-		r1 = r;
-		t0 = t1;
-		t1 = t;
-	}
-
-	if (t < 0)
-	{
-		t = t ^ mod;
-	}
-
-	return t;
 }
