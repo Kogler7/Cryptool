@@ -85,6 +85,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="pad.cpp" />
     <QtRcc Include="Cryptool.qrc" />
     <QtUic Include="Cryptool.ui" />
     <QtMoc Include="Cryptool.h" />
@@ -94,7 +95,9 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="aes.h" />
     <ClInclude Include="des.h" />
+    <ClInclude Include="pad.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

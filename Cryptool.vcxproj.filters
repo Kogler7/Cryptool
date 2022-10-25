@@ -46,9 +46,18 @@
     <ClCompile Include="aes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="des.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="aes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

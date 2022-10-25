@@ -1,6 +1,7 @@
 #include<string.h>
+#include "aes.h"
 
-const unsigned char S_Table[16][16] =
+const unsigned char sTab[16][16] =
 {
 0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
 0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0,
@@ -20,21 +21,36 @@ const unsigned char S_Table[16][16] =
 0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16
 };
 
+int addRoundKey(unsigned char(*pArr)[4], unsigned char(*exKeyArr)[44], unsigned int col)
+{
+	int ret = 0;
+
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			pArr[i][j] ^= exKeyArr[i][col + j];
+		}
+	}
+
+	return ret;
+}
+
 //字节代换
-int Plain_S_Substitution(unsigned char* PlainArray)
+int byteSub(unsigned char* pArr)
 {
 	int ret = 0;
 
 	for (int i = 0; i < 16; i++)
 	{
-		PlainArray[i] = S_Table[PlainArray[i] >> 4][PlainArray[i] & 0x0F];
+		pArr[i] = sTab[pArr[i] >> 4][pArr[i] & 0x0F];
 	}
 
 	return ret;
 }
 
 //逆S盒
-const unsigned char ReS_Table[16][16] =
+const unsigned char rsTab[16][16] =
 {
 0x52, 0x09, 0x6A, 0xD5, 0x30, 0x36, 0xA5, 0x38, 0xBF, 0x40, 0xA3, 0x9E, 0x81, 0xF3, 0xD7, 0xFB,
 0x7C, 0xE3, 0x39, 0x82, 0x9B, 0x2F, 0xFF, 0x87, 0x34, 0x8E, 0x43, 0x44, 0xC4, 0xDE, 0xE9, 0xCB,
@@ -54,19 +70,19 @@ const unsigned char ReS_Table[16][16] =
 0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D
 };
 //逆字节代换
-int Cipher_S_Substitution(unsigned char* CipherArray)
+int invByteSub(unsigned char* cArr)
 {
 	int ret = 0;
 
 	for (int i = 0; i < 16; i++)
 	{
-		CipherArray[i] = ReS_Table[CipherArray[i] >> 4][CipherArray[i] & 0x0F];
+		cArr[i] = rsTab[cArr[i] >> 4][cArr[i] & 0x0F];
 	}
 
 	return ret;
 }
 
-int ShiftRows(unsigned int* PlainArray)
+int shiftRows(unsigned int* pArr)
 {
 	int ret = 0;
 
@@ -74,18 +90,18 @@ int ShiftRows(unsigned int* PlainArray)
 	//PlainArray[0] = PlainArray[0];
 
 	//第二行 左移8Bit
-	PlainArray[1] = (PlainArray[1] >> 8) | (PlainArray[1] << 24);
+	pArr[1] = (pArr[1] >> 8) | (pArr[1] << 24);
 
 	//第三行 左移16Bit
-	PlainArray[2] = (PlainArray[2] >> 16) | (PlainArray[2] << 16);
+	pArr[2] = (pArr[2] >> 16) | (pArr[2] << 16);
 
 	//第四行 左移24Bit
-	PlainArray[3] = (PlainArray[3] >> 24) | (PlainArray[3] << 8);
+	pArr[3] = (pArr[3] >> 24) | (pArr[3] << 8);
 
 	return ret;
 }
 
-int ReShiftRows(unsigned int* CipherArray)
+int invShiftRows(unsigned int* cArr)
 {
 	int ret = 0;
 
@@ -93,19 +109,19 @@ int ReShiftRows(unsigned int* CipherArray)
 	//CipherArray[0] = CipherArray[0];
 
 	//第二行 右移8Bit
-	CipherArray[1] = (CipherArray[1] << 8) | (CipherArray[1] >> 24);
+	cArr[1] = (cArr[1] << 8) | (cArr[1] >> 24);
 
 	//第三行 右移16Bit
-	CipherArray[2] = (CipherArray[2] << 16) | (CipherArray[2] >> 16);
+	cArr[2] = (cArr[2] << 16) | (cArr[2] >> 16);
 
 	//第四行 右移24Bit
-	CipherArray[3] = (CipherArray[3] << 24) | (CipherArray[3] >> 8);
+	cArr[3] = (cArr[3] << 24) | (cArr[3] >> 8);
 
 	return ret;
 }
 
 //列混淆左乘矩阵
-const unsigned char MixArray[4][4] =
+const unsigned char mixArray[4][4] =
 {
 0x02, 0x03, 0x01, 0x01,
 0x01, 0x02, 0x03, 0x01,
@@ -113,151 +129,153 @@ const unsigned char MixArray[4][4] =
 0x03, 0x01, 0x01, 0x02
 };
 
-int MixColum(unsigned char(*PlainArray)[4])
+const unsigned char invMixArray[4][4] =
+{
+0x0E, 0x0B, 0x0D, 0x09,
+0x09, 0x0E, 0x0B, 0x0D,
+0x0D, 0x09, 0x0E, 0x0B,
+0x0B, 0x0D, 0x09, 0x0E
+};
+
+char gfMultiply(unsigned char numL, unsigned char numR)
+{
+	//定义变量
+	unsigned char res = 0; //伽罗瓦域内乘法计算的结果
+
+	while (numL)
+	{
+		//如果Num_L最低位是1就异或Num_R，相当于加上Num_R * 1
+		if (numL & 0x01)
+		{
+			res ^= numR;
+		}
+
+		//Num_L右移一位，相当于除以2
+		numL = numL >> 1;
+
+		//如果Num_R最高位为1
+		if (numR & 0x80)
+		{
+			//左移一位相当于乘二
+			numR = numR << 1; //注：这里会丢失最高位，但是不用担心
+
+			numR ^= 0x1B; //计算伽罗瓦域内除法Num_R = Num_R / (x^8(刚好丢失最高位) + x^4 + x^3 + x^1 + 1)
+		}
+		else
+		{
+			//左移一位相当于乘二
+			numR = numR << 1;
+		}
+	}
+	return res;
+}
+
+int mixColumn(unsigned char(*pArr)[4])
 {
 	int ret = 0;
 	//定义变量
-	unsigned char ArrayTemp[4][4];
+	unsigned char tmpArr[4][4];
 
 	//初始化变量
-	memcpy(ArrayTemp, PlainArray, 16);
+	memcpy(tmpArr, pArr, 16);
 
 	//矩阵乘法 4*4
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
 		{
-			PlainArray[i][j] =
-				MixArray[i][0] * ArrayTemp[0][j] +
-				MixArray[i][1] * ArrayTemp[1][j] +
-				MixArray[i][2] * ArrayTemp[2][j] +
-				MixArray[i][3] * ArrayTemp[3][j];
+			pArr[i][j] =
+				gfMultiply(mixArray[i][0], tmpArr[0][j]) ^
+				gfMultiply(mixArray[i][1], tmpArr[1][j]) ^
+				gfMultiply(mixArray[i][2], tmpArr[2][j]) ^
+				gfMultiply(mixArray[i][3], tmpArr[3][j]);
 		}
 	}
-
 	return ret;
 }
 
-//int MixColum(unsigned char(*PlainArray)[4])
-//{
-//	int ret = 0;
-//	//定义变量
-//	unsigned char ArrayTemp[4][4];
-//
-//	//初始化变量
-//	memcpy(ArrayTemp, PlainArray, 16);
-//
-//	//矩阵乘法 4*4
-//	for (int i = 0; i < 4; i++)
-//	{
-//		for (int j = 0; j < 4; j++)
-//		{
-//			PlainArray[i][j] =
-//				GaloisMultiplication(MixArray[i][0], ArrayTemp[0][j]) ^
-//				GaloisMultiplication(MixArray[i][1], ArrayTemp[1][j]) ^
-//				GaloisMultiplication(MixArray[i][2], ArrayTemp[2][j]) ^
-//				GaloisMultiplication(MixArray[i][3], ArrayTemp[3][j]);
-//		}
-//	}
-//	return ret;
-//}
-
-///////////////////////////////////////////////////////////////
-//功能: 伽罗瓦域内的乘法运算 GF(128)
-//参数: Num_L 输入的左参数
-// Num_R 输入的右参数
-//返回值:计算结果
-char GaloisMultiplication(unsigned char Num_L, unsigned char Num_R)
+int invMixColumn(unsigned char(*cArr)[4])
 {
+	int ret = 0;
 	//定义变量
-	unsigned char Result = 0; //伽罗瓦域内乘法计算的结果
+	unsigned char tmpArr[4][4];
 
-	while (Num_L)
+	//初始化变量
+	memcpy(tmpArr, cArr, 16);
+
+	//矩阵乘法 4*4
+	for (int i = 0; i < 4; i++)
 	{
-		//如果Num_L最低位是1就异或Num_R，相当于加上Num_R * 1
-		if (Num_L & 0x01)
+		for (int j = 0; j < 4; j++)
 		{
-			Result ^= Num_R;
-		}
-
-		//Num_L右移一位，相当于除以2
-		Num_L = Num_L >> 1;
-
-		//如果Num_R最高位为1
-		if (Num_R & 0x80)
-		{
-			//左移一位相当于乘二
-			Num_R = Num_R << 1; //注：这里会丢失最高位，但是不用担心
-
-			Num_R ^= 0x1B; //计算伽罗瓦域内除法Num_R = Num_R / (x^8(刚好丢失最高位) + x^4 + x^3 + x^1 + 1)
-		}
-		else
-		{
-			//左移一位相当于乘二
-			Num_R = Num_R << 1;
+			cArr[i][j] =
+				gfMultiply(invMixArray[i][0], tmpArr[0][j]) ^
+				gfMultiply(invMixArray[i][1], tmpArr[1][j]) ^
+				gfMultiply(invMixArray[i][2], tmpArr[2][j]) ^
+				gfMultiply(invMixArray[i][3], tmpArr[3][j]);
 		}
 	}
-	return Result;
+	return ret;
 }
 
 //用于密钥扩展 Rcon[0]作为填充，没有实际用途
 const unsigned int Rcon[11] = { 0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36 };
 
 
-int Key_S_Substitution(unsigned char(*ExtendKeyArray)[44], unsigned int nCol)
+int keyByteSub(unsigned char(*exKeyArr)[44], unsigned int nCol)
 {
 	int ret = 0;
 
 	for (int i = 0; i < 4; i++)
 	{
-		ExtendKeyArray[i][nCol] = S_Table[(ExtendKeyArray[i][nCol]) >> 4][(ExtendKeyArray[i][nCol]) & 0x0F];
+		exKeyArr[i][nCol] = sTab[(exKeyArr[i][nCol]) >> 4][(exKeyArr[i][nCol]) & 0x0F];
 	}
 
 	return ret;
 }
 
 
-int G_Function(unsigned char(*ExtendKeyArray)[44], unsigned int nCol)
+int keyExtendCol(unsigned char(*exKeyArr)[44], unsigned int nCol)
 {
 	int ret = 0;
 
 	//1、将扩展密钥矩阵的nCol-1列复制到nCol列上，并将nCol列第一行的元素移动到最后一行，其他行数上移一行
 	for (int i = 0; i < 4; i++)
 	{
-		ExtendKeyArray[i][nCol] = ExtendKeyArray[(i + 1) % 4][nCol - 1];
+		exKeyArr[i][nCol] = exKeyArr[(i + 1) % 4][nCol - 1];
 	}
 
 	//2、将nCol列进行S盒替换
-	Key_S_Substitution(ExtendKeyArray, nCol);
+	keyByteSub(exKeyArr, nCol);
 
 	//3、将该列第一行元素与Rcon进行异或运算
-	ExtendKeyArray[0][nCol] ^= Rcon[nCol / 4];
+	exKeyArr[0][nCol] ^= Rcon[nCol / 4];
 
 	return ret;
 }
 
 
-int CalculateExtendKeyArray(const unsigned char(*PasswordArray)[4], unsigned char(*ExtendKeyArray)[44])
+int keyExpansion(const unsigned char(*usrKeyArr)[4], unsigned char(*exKeyArr)[44])
 {
 	int ret = 0;
 
 	//1、将密钥数组放入前四列扩展密钥组
 	for (int i = 0; i < 16; i++)
 	{
-		ExtendKeyArray[i & 0x03][i >> 2] = PasswordArray[i & 0x03][i >> 2];
+		exKeyArr[i & 0x03][i >> 2] = usrKeyArr[i & 0x03][i >> 2];
 	}
 
 	//2、计算扩展矩阵的后四十列
 	for (int i = 1; i < 11; i++) //进行十轮循环
 	{
 		//(1)如果列号是4的倍数，这执行G函数 否则将nCol-1列复制到nCol列上
-		G_Function(ExtendKeyArray, 4 * i);
+		keyExtendCol(exKeyArr, 4 * i);
 
 		//(2)每一轮中，各列进行异或运算
 		// 列号是4的倍数
 		for (int k = 0; k < 4; k++)//行号
 		{
-			ExtendKeyArray[k][4 * i] = ExtendKeyArray[k][4 * i] ^ ExtendKeyArray[k][4 * (i - 1)];
+			exKeyArr[k][4 * i] ^= exKeyArr[k][4 * (i - 1)];
 		}
 
 		// 其他三列
@@ -265,7 +283,7 @@ int CalculateExtendKeyArray(const unsigned char(*PasswordArray)[4], unsigned cha
 		{
 			for (int k = 0; k < 4; k++)//行号
 			{
-				ExtendKeyArray[k][4 * i + j] = ExtendKeyArray[k][4 * i + j - 1] ^ ExtendKeyArray[k][4 * (i - 1) + j];
+				exKeyArr[k][4 * i + j] = exKeyArr[k][4 * i + j - 1] ^ exKeyArr[k][4 * (i - 1) + j];
 			}
 		}
 	}
@@ -356,7 +374,33 @@ unsigned char Division(unsigned short Num_L, unsigned short Num_R, unsigned shor
 	return q;
 }
 
+void aes_ecb_encrypt(unsigned char(*pArr)[4], unsigned char(*exKeyArr)[44]) {
+	addRoundKey(pArr, exKeyArr, 0);
+	for (int i = 1; i <= 10; i++) {
+		byteSub((unsigned char*)pArr);
+		shiftRows((unsigned int*)pArr);
+		if (i != 10) {
+			mixColumn(pArr);
+		}
+		addRoundKey(pArr, exKeyArr, i);
+	}
+}
 
+void aes_ecb_decrypt(unsigned char(*cArr)[4], unsigned char(*exKeyArr)[44]) {
+	for (int i = 1; i <= 10; i++) {
+		invMixColumn((unsigned char(*)[4])(exKeyArr + i * 4));
+	}
+	addRoundKey(cArr, exKeyArr, 10);
+	for (int i = 9; i > 0; i--) {
+		invShiftRows((unsigned int*)cArr);
+		invByteSub((unsigned char*)cArr);
+		addRoundKey(cArr, exKeyArr, i);
+		invMixColumn(cArr);
+	}
+	invShiftRows((unsigned int*)cArr);
+	invByteSub((unsigned char*)cArr);
+	addRoundKey(cArr, exKeyArr, 0);
+}
 
 //GF(2^8)多项式乘法
 short Multiplication(unsigned char Num_L, unsigned char Num_R)
